@@ -4,8 +4,6 @@
 #include <QObject>
 #include <QImage>
 
-//#include <stdio.h>
-//#include <assert.h>
 #include <cinttypes>
 
 extern "C"
