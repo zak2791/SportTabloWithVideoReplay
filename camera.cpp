@@ -3,7 +3,6 @@
 #include <QThread>
 
 Camera::Camera(QObject *parent) : QObject(parent){
-    //process = true;
     url = QString("");
     file = "";
     flag_record = 0;
@@ -60,10 +59,7 @@ void Camera::TurnOnCamera(){
     if ((ret = avformat_find_stream_info(ifmt_ctx, 0)) < 0) {
         goto end;
     }
-    //////////////////////////////////////////////////////////////////////
 
-    //stream = ifmt_ctx->streams[0];
-    /* select the video stream */
     best_video = av_find_best_stream(ifmt_ctx, AVMEDIA_TYPE_VIDEO, -1, -1, &dec, 0);
     if (best_video < 0) {
         goto end;
@@ -85,39 +81,21 @@ void Camera::TurnOnCamera(){
         goto end;
     }
 
-    ////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    //av_dump_format(ifmt_ctx, 0, in_filename, 0);
-
     stream_mapping_size = ifmt_ctx->nb_streams;
     stream_mapping = (int*)av_calloc(stream_mapping_size, sizeof(*stream_mapping));
     if (!stream_mapping) {
-        //ret = AVERROR(ENOMEM);
-        //av_packet_free(&pkt);
-        //avformat_close_input(&ifmt_ctx);
-        //avcodec_free_context(&pCodecCtx);
         goto end;
     }
 
     /////////////////////////////////////////////////////////
 
     while (process) {
-        /*
-        if(flag_record == 1){
-            ret = prepareRecord(ifmt_ctx, stream_mapping, file);
-            if(ret == -1) flag_record = 0;
-            else flag_record = 2;
-        }
-        */
         AVStream *in_stream, *out_stream;
-        //static int count_img = 0;
         ret = av_read_frame(ifmt_ctx, pkt);
-        if (ret < 0){
-            qDebug()<<"break av_read_frame";
+        if (ret < 0)
             break;
-        }
         if (pkt->stream_index == best_video){
             if (pkt->flags & AV_PKT_FLAG_KEY) {
-                //qDebug()<<"key"<<QString::number(flag_record);
                 if(flag_record == 1){
                     ret = prepareRecord(ifmt_ctx, stream_mapping, file);
                     if(ret == -1) flag_record = 0;
@@ -126,16 +104,13 @@ void Camera::TurnOnCamera(){
             }
                 int ret;
                 ret = avcodec_send_packet(pCodecCtx, pkt);
-                if (ret < 0) {
-                    qDebug()<<"ret = avcodec_send_packet";
+                if (ret < 0)
                     goto end_preview;
-                }
                 AVFrame* frame = av_frame_alloc();
                 while (ret >= 0) {
                     ret = avcodec_receive_frame(pCodecCtx, frame);
                     if (ret == AVERROR(EAGAIN) || ret == AVERROR_EOF){
                         av_frame_free(&frame);
-                        //qDebug()<<"ret == AVERROR(EAGAIN) || ret == AVERROR_EOF";
                         goto end_preview;
                     }
                     else if (ret < 0) {
@@ -168,19 +143,14 @@ void Camera::TurnOnCamera(){
 
             pkt->dts = pkt->dts - _dts;
             pkt->pts = pkt->pts - _pts;
-            // copy packet
+
             av_packet_rescale_ts(pkt, in_stream->time_base, out_stream->time_base);
             pkt->pos = -1;
 
             ret = av_interleaved_write_frame(ofmt_ctx, pkt);
-            // pkt is now blank (av_interleaved_write_frame() takes ownership of
-            // its contents and resets pkt), so that no unreferencing is necessary.
-            // This would be different if one used av_write_frame().
-            if (ret < 0) {
-                fprintf(stderr, "Error muxing packet\n");
-                qDebug()<<"ret av_interleaved_write_frame";
+
+            if (ret < 0)
                 break;
-            }
         }
 
         if(flag_record == 4){
@@ -200,37 +170,16 @@ end:
             qDebug()<<"avio_closep";
         }
         avformat_free_context(ofmt_ctx);
-        qDebug()<<"avformat_free_context";
         flag_record = 0;
     }
 
     av_packet_free(&pkt);
-    qDebug()<<"av_packet_free";
     avformat_close_input(&ifmt_ctx);
-    qDebug()<<"avformat_close_input";
     avcodec_free_context(&pCodecCtx);
-    qDebug()<<"avformat_close_input";
-
-    //if(flag_record == 2 || flag_record == 3){
-        // close output
-        //if (ofmt_ctx && !(ofmt->flags & AVFMT_NOFILE)){
-        //    avio_closep(&ofmt_ctx->pb);
-        //    qDebug()<<"avio_closep";
-        //}
-        //avformat_free_context(ofmt_ctx);
-        //qDebug()<<"avformat_free_context";
-    //}
-
     av_freep(&stream_mapping);
     qDebug()<<"av_freep";
 
-    //if (ret < 0 && ret != AVERROR_EOF) {
-    //    goto err;
-    //}
-
-//err:
     emit finished();
-
 }
 
 void Camera::TurnOffCamera(){
@@ -264,11 +213,8 @@ int Camera::prepareRecord(AVFormatContext * ifmt, int *stream_mapp, QString file
     int ret;
     int stream_index = 0;
     avformat_alloc_output_context2(&ofmt_ctx, NULL, NULL, out_file);
-    if (!ofmt_ctx) {
-        //fprintf(stderr, "Could not create output context\n");
-        //ret = AVERROR_UNKNOWN;
+    if (!ofmt_ctx)
         goto err;
-    }
 
     ofmt = ofmt_ctx->oformat;
 
@@ -287,34 +233,25 @@ int Camera::prepareRecord(AVFormatContext * ifmt, int *stream_mapp, QString file
         stream_mapp[i] = stream_index++;
 
         out_stream = avformat_new_stream(ofmt_ctx, NULL);
-        if (!out_stream) {
-            //fprintf(stderr, "Failed allocating output stream\n");
-            //ret = AVERROR_UNKNOWN;
+        if (!out_stream)
             goto err;
-        }
 
         ret = avcodec_parameters_copy(out_stream->codecpar, in_codecpar);
-        if (ret < 0) {
-            //fprintf(stderr, "Failed to copy codec parameters\n");
+        if (ret < 0)
             goto err;
-        }
         out_stream->codecpar->codec_tag = 0;
     }
     av_dump_format(ofmt_ctx, 0, out_file, 1);
 
     if (!(ofmt_ctx->flags & AVFMT_NOFILE)) {
         ret = avio_open(&ofmt_ctx->pb, out_file, AVIO_FLAG_WRITE);
-        if (ret < 0) {
-            //fprintf(stderr, "Could not open output file '%s'", out_file);
+        if (ret < 0)
             goto err;
-        }
     }
 
     ret = avformat_write_header(ofmt_ctx, NULL);
-    if (ret < 0) {
-        //fprintf(stderr, "Error occurred when opening output file\n");
+    if (ret < 0)
         goto err;
-    }
     return 0;
 err: return -1;
 }
