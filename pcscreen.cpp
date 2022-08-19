@@ -228,10 +228,7 @@ PcScreen::PcScreen(QWidget * parent) : QWidget(parent){
     connect(mainTimer, SIGNAL(sigStopped(bool)), this, SLOT(StartRecord(bool)));
     connect(mainTimer, SIGNAL(sigReset()), this, SLOT(StopRecord()));
 
-    //QList<QWidget*> widgetList = this->findChildren<QWidget*>();
-    //foreach( QWidget* widgetPtr, widgetList )
-        //widgetPtr->setFocusPolicy(Qt::NoFocus);
-    //this->setFocus();
+
     QDir dir("video");
     if(!dir.exists()){
         QDir dir;
