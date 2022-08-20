@@ -5,7 +5,7 @@
 
 #include "rate.h"
 #include "ui_dialogSetUrl.h"
-#include "ui_formaTurnCameras.h"
+//#include "ui_formaTurnCameras.h"
 
 #include "tvscreen.h"
 #include "cameraviewer.h"
@@ -14,6 +14,7 @@
 #include <QPointer>
 #include "playerviewer.h"
 #include "lcdtimer.h"
+#include <QCheckBox>
 
 class PcScreen : public QWidget {
 	Q_OBJECT
