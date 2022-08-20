@@ -26,13 +26,13 @@ PcScreen::PcScreen(QWidget * parent) : QWidget(parent){
 
     rateBlue = new Rate(this);
 
-    QPushButton * btnReset = new QPushButton(u8"СБРОС", this);
+    QPushButton * btnReset = new QPushButton("СБРОС", this);
     btnReset->setSizePolicy(QSizePolicy::Ignored, QSizePolicy::Ignored);
     btnReset->setStyleSheet("color: red; font: bold " + QString::number(round(btnReset->height() / 2)) + "px;");
     btnReset->setFocusPolicy(Qt::NoFocus);
     connect(btnReset, SIGNAL(clicked()), this, SLOT(reset()));
 
-	QPushButton * btnTime = new QPushButton(u8"ВРЕМЯ", this);
+    QPushButton * btnTime = new QPushButton("ВРЕМЯ", this);
 	btnTime->setObjectName("btnTime");
 	btnTime->setSizePolicy(QSizePolicy::Ignored, QSizePolicy::Ignored);
     btnTime->setStyleSheet("color: green; font: bold " + QString::number(round(btnTime->height() / 2)) + "px;");
@@ -41,7 +41,7 @@ PcScreen::PcScreen(QWidget * parent) : QWidget(parent){
     dialogSetUrl = new QDialog(this);
     ui_url.setupUi(dialogSetUrl);
 
-    QPushButton * btnSettings = new QPushButton(u8"НАСТРОЙКИ", this);
+    QPushButton * btnSettings = new QPushButton("НАСТРОЙКИ", this);
     btnSettings->setSizePolicy(QSizePolicy::Ignored, QSizePolicy::Ignored);
     btnSettings->setStyleSheet("font: bold " + QString::number(round(btnSettings->height() / 2)) + "px;");
     btnSettings->setFocusPolicy(Qt::NoFocus);
@@ -152,8 +152,8 @@ PcScreen::PcScreen(QWidget * parent) : QWidget(parent){
 
     //if (desk->numScreens() == 1) {
     if(QGuiApplication::screens().count() == 1){
-        QMessageBox::information(this, u8"ВНИМАНИЕ!",
-        u8"Подключите к компьютеру дисплей в режиме \"Расширенный рабочий стол!\"",
+        QMessageBox::information(this, "ВНИМАНИЕ!",
+        "Подключите к компьютеру дисплей в режиме \"Расширенный рабочий стол!\"",
 		QMessageBox::Ok);
 	}
     //else {
