@@ -49,6 +49,7 @@ void LcdTimer::StartStop(){
 
 void LcdTimer::Reset(){
     if (status != 1) {
+        time = intInitTime;
         QString sTime = intTimeToStr(intInitTime);
         display(sTime);
         emit sigTime(sTime, palette());

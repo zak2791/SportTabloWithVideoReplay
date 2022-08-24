@@ -2,7 +2,6 @@
 #include <QMouseEvent>
 #include "rate.h"
 #include <QMessageBox>
-//#include <QDebug>
 
 Rate::Rate(QWidget *parent):
 
